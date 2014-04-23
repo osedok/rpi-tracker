@@ -1,0 +1,108 @@
+            
+    rpi-tracker
+    
+    An attempt to eliminate the need of third parties for remote gps tracking.
+    
+    This bash script configures the raspberry pi to log data from a
+    TTL serial GPS device and surrounding WiFi access points, for additional geolocation.
+    Then the script uploads this data to an ssh server after establishing an internet 
+    connection using wpa_supplicant, which is set to roam for open WiFi access points.
+    
+    It also has an option if desired to use an icmp tunnel for uploading data 
+    using the ptunnel package. In order to use this feature you need to have 
+    a ptunnel proxy for your device (rpi) to establish the tunnel.
+
+    INSTALL
+    This script is made for the raspberry pi, use on other platforms will require editing
+    of the script.
+  
+    To install you need to be root and place the folder in /root/rpi-tracker/
+    edit the variable options in rpi-tracker.sh once done run the script.
+    
+    
+    VARIABLES/OPTIONS:   
+    
+    PINGTN - (on || off)  This activates the option to us a ping tunnel
+    
+    PTIP - ptunnel proxy IP, if the PINGTN option is on this is required for it to function 
+    
+    PASS - password for the ptunnel password
+    
+    USR - username to be used with ssh 
+    
+    PORT - the configured port for ssh the default option in the script is 22, change if different.
+
+    IP - IP address or domain of ssh reporting server
+    
+        This is were it can get tricky if also using ptunnel, depending on your set up you may 
+        have a dedicated ptunnel proxy and a separate dedicated ssh server each with there own
+        IP addresses which for example will look like this. 
+        
+        |rpi:1.1.1.1|->--->---->--|PTIP:3.3.3.3|-->-->-->-|IP:5.5.5.5:22| 
+        
+        
+        But if the if the ptunnel proxy is also used for ssh then it would look like this.
+        
+        |rpi.1.1.1.1|->--->---->---|PTIP:3.3.3.3   |
+                                   |IP:localhost:22|                                 
+        
+        This script is designed for having the ptunnel proxy on the same server as the ssh
+        service otherwise you will have to edit the scripts fail safe if statement. 
+        Which if the tunnel fails it will retry to connect directly to the PTIP without a tunnel.
+        To do this check line 293 of rpi-tracker.sh
+        
+    
+    
+    *************************************IMPORTANT*****************************************
+    
+    The authentication for ssh relies on public keys so these must be imported manually
+    to the server from the client device (rpi).
+    
+    Create them with ssh-keygen and import the id_rsa.pub to the ~/.ssh/authorized_keys
+    of the specified user in the reporting server, don't use server root for this.
+    
+    Don't forget about the server's ssh fingerprint.
+    
+    This can be done using ssh-keyscan
+    [root@raspberrypi:~# ssh-keyscan -t rsa,ecdsa "server_ip_or_domain" >> ~/.ssh/know_hosts]
+    
+    You can hash these inputs in the know_hosts file with the "ssh-keygen -H" option. 
+    
+    Also when using ptunnel the know_hosts fingerprint may still prompt you since it 
+    detects a different ip than when ssh into the server without a tunnel so either 
+    use the above method and change the ip to localhost in the know_hosts file before hashing
+    it or log in manually once to the server through the tunnel to update this file 
+    or just turn off the fingerprint checks by turning off stricthostkeychecking option 
+    in the global /etc/ssh/sshd_config (not recommended).
+    
+    
+    For specifics on using ptunnel use the --help option for specifics. Be sure to run it with
+    a password if using it as a proxy to prevent just anyone from using it.
+    
+    To run it from boot there are many ways to do this on example, cron job 
+    
+    @reboot root /usr/bin/ptunnel -x "some_password" &
+        
+
+    PROBLEMS?
+    Be aware that some routers throttle ping traffic due to DOS mitigation 
+    firewall rules which may prevent the ping tunnel from being established.
+    
+    for example
+    ACCEPT   icmp  --  *    *    0.0.0.0/0   0.0.0.0/0   limit: avg 1/sec burst 5 
+    
+    [keep in mind that this feature is designed to just increase the percentage of usable
+    access points as shown above this may not work on some routers.]
+
+    Also ptunnel is set by the script to listen on the wlan interfaces so if you want 
+    to test it over an wired interface (eth0) you will have to 
+    edit rpi-tracker.sh in line 276.
+
+    FROM: ptunnel -p $PTIP -lp 80 -da $IP -dp $PORT -c $wlan -x $PASS &
+    TO: ptunnel -p $PTIP -lp 80 -da $IP -dp $PORT -c eth(your number) -x $PASS &   
+    
+    
+    As stated before this uses wpa_supplicant for managing wireless connections.
+    To add known WiFi networks refer to [man wpa_supplicant.conf] in the terminal 
+    for precise details on how to best do this.
+    
