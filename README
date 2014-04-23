@@ -9,6 +9,9 @@
     server after establishing an internet connection using wpa_supplicant, 
     which is set to roam for open WiFi access points.
     
+    The GPS logs are in NMEA format and can be used with any software 
+    that supports it.
+
     It also has an option if desired to use an icmp tunnel for uploading data 
     using the ptunnel package. In order to use this feature you need to have 
     a ptunnel proxy for your device (rpi) to establish the tunnel.
