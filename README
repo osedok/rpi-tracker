@@ -12,13 +12,17 @@
     The GPS logs are in NMEA format and can be used with any software 
     that supports it.
 
+    The GPS logs along with other information is stored in the 
+    /root/geo-data to be stage for upload. The data is then deleted 
+    upon a successful upload.
+
     It also has an option if desired to use an icmp tunnel for uploading data 
     using the ptunnel package. In order to use this feature you need to have 
     a ptunnel proxy for your device (rpi) to establish the tunnel.
 
     INSTALL
-    This script is made for the raspberry pi, use on other platforms will 
-    require editing of the script.
+    This script is made for the raspberry pi, to use on other platforms
+    one will need to specifiy the gps device using the GPSDEVICE variable. 
   
     you first will need to edit the variable options in tracker.conf
     then run install.sh as root/sudo the necessary files will be
@@ -28,6 +32,9 @@
     
     VARIABLES/OPTIONS:   
     
+    GPSDEVICE - for the GPIO pins on the RPi is /dev/ttyAMA0
+                for USB devices it *may* be /dev/ttyUSB0    
+
     PINGTN - (on || off)  This activates the option to us a ping tunnel
     
     PTIP - ptunnel proxy IP, if the PINGTN option is on this is required 
