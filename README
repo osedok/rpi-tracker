@@ -28,9 +28,10 @@
     then run install.sh as root/sudo the necessary files will be
     placed in /root/tracking-engine/ 
     
+    Configuration changes must be made to tracking.conf the install.sh
+    will not function with default variables.
     
-    
-    VARIABLES/OPTIONS:   
+    VARIABLES/OPTIONS: for tracking.conf   
     
     GPSDEVICE - for the GPIO pins on the RPi is /dev/ttyAMA0
                 for USB devices it *may* be /dev/ttyUSB0    
