@@ -60,8 +60,7 @@
      But if the if the ptunnel proxy is also used for ssh then 
      it would look like this.
         
-     |rpi.1.1.1.1|->--->--->---|PTIP:3.3.3.3   |
-                               |IP:localhost:22|                                 
+     |rpi.1.1.1.1|->--->---|PTIP:3.3.3.3//IP:localhost:22|                                 
         
      This script is designed for having the ptunnel proxy on the same 
      server as the ssh service otherwise you will have to edit the 
