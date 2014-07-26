@@ -20,8 +20,10 @@
     This script is made for the raspberry pi, use on other platforms will 
     require editing of the script.
   
-    To install you need to be root and place the folder in /root/rpi-tracker/
-    edit the variable options in rpi-tracker.sh once done run the script.
+    you first will need to edit the variable options in tracker.conf
+    then run install.sh as root/sudo the necessary files will be
+    placed in /root/tracking-engine/ 
+    
     
     
     VARIABLES/OPTIONS:   
@@ -50,31 +52,36 @@
      But if the if the ptunnel proxy is also used for ssh then 
      it would look like this.
         
-     |rpi.1.1.1.1|->--->---->---|PTIP:3.3.3.3   |
-                                |IP:localhost:22|                                 
+     |rpi.1.1.1.1|->--->--->---|PTIP:3.3.3.3   |
+                               |IP:localhost:22|                                 
         
      This script is designed for having the ptunnel proxy on the same 
      server as the ssh service otherwise you will have to edit the 
-     scripts if failed statement. Which if the tunnel fails it will 
-     retry to connect directly to the PTIP without a tunnel. 
-     To do this check line 293 of rpi-tracker.sh
-        
+     scripts if failed statement. If the tunnel fails it will 
+     retry to connect directly to the PTIP variable without a tunnel. 
+             
     
     
-    ********************************IMPORTANT*****************************
+    ******************************IMPORTANT*****************************
     
     The authentication for ssh relies on public keys so these must be 
     imported manually to the server from the client device (rpi).
     
     Create them with ssh-keygen and import the id_rsa.pub to 
-    the ~/.ssh/authorized_keys of the specified user in the reporting 
-    server, don't use server root for this.
+    the ~/.ssh/authorized_keys of the specified user in the 
+    reporting server, don't use server root for this.
     
     Don't forget about the server's ssh fingerprint.
     
     This can be done using ssh-keyscan
-    [ssh-keyscan -t rsa,ecdsa "server_ip_or_domain" >> ~/.ssh/know_hosts]
+    [ssh-keyscan -p port -t rsa,ecdsa "server_ip_or_domain" >> ~/.ssh/know_hosts]
     
+    The port option is metioned due to it's relevance when you are using the
+    ptunnel option. You will need to import the fingerprint when you
+    log into the ssh server through the tunnel even though you may
+    already have sshed to it directly, as the ip/domain will be different 
+    (127.0.0.1/localhost). 
+
     You can hash these inputs in the know_hosts file with 
     the "ssh-keygen -H" option. 
     
@@ -87,11 +94,11 @@
     in the global /etc/ssh/sshd_config (not recommended).
     
     
-    For specifics on using ptunnel use the --help option for specifics. 
-    Be sure to run it with
-    a password if using it as a proxy to prevent just anyone from using it.
+    For specifics on using ptunnel use the --help option for details. 
+    Be sure to run it with a password if using it as a proxy to prevent 
+    just anyone from using it.
     
-    To run it from boot there are many ways to do this on example, cron job 
+    To run it from boot one can use cron. 
     
     @reboot root /usr/bin/ptunnel -x "some_password" &
         
@@ -103,15 +110,15 @@
     for example
     ACCEPT   icmp  --  *   *   0.0.0.0/0   0.0.0.0/0   limit: avg 1/sec burst 5 
     
-    [keep in mind that this feature is designed to just increase the 
-    percentage of usable access points and may not work on some routers.]
+    [keep in mind that the ping tunnel feature is designed to increase the 
+    percentage of usable access points and will not work on all routers.]
 
     Also ptunnel is set by the script to listen on the wlan interfaces so if 
     you want to test it over an wired interface (eth0) you will have to 
-    edit rpi-tracker.sh in line 276.
+    edit the following from rpi-tracker.sh.
 
-    FROM: ptunnel -p $PTIP -lp 80 -da $IP -dp $PORT -c $wlan -x $PASS &
-    TO: ptunnel -p $PTIP -lp 80 -da $IP -dp $PORT -c eth(your number) -x $PASS &   
+    FROM: ptunnel -p $PTIP -lp 8080 -da $IP -dp $PORT -c $wlan -x $PASS &
+    TO: ptunnel -p $PTIP -lp 8080 -da $IP -dp $PORT -c eth(your number) -x $PASS &   
     
     
     As stated before this uses wpa_supplicant for managing wireless 
