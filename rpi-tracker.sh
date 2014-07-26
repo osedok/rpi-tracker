@@ -20,9 +20,7 @@ chk_tubes() {
   if ! ping -c 1 google.com > /dev/null 2>&1  ; then
       if ! ping -c 1 yahoo.com > /dev/null 2>&1  ; then
          if ! ping -c 1 bing.com > /dev/null 2>&1 ; then
-             clear
-             printf "\n\nDo you have an internet connection???\n\n"
-             exit
+             printf "\n\nno tubes detected....\n\n"
          fi
       fi
   fi
