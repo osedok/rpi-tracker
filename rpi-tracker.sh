@@ -75,12 +75,12 @@ iwlist $wlan scanning | grep -A 5 Cell >> $geo/net-info/"net-$(tstamp)"
 
 if [ $PINGTN == "on" ]; then
 
-    ptunnel -p $PTIP -lp 8080 -da $IP -dp $PORT -c $wlan -x $PASS &
+    ptunnel -p $PTIP -lp 443 -da $IP -dp $PORT -c $wlan -x $PASS &
     if [ $? -ne 0 ]; then
             printf "\nptunnel failed to establish ping tunnel, exiting... $(tstamp)" >> $log
             killall ptunnel
             exit
-      elif rsync -avz -e "ssh -p 8080" "$geo" "$USR"@"$IP":~/; then  # created check for retry without ptunnel
+      elif rsync -avz -e "ssh -p 443" "$geo" "$USR"@"$IP":~/; then  # created check for retry without ptunnel
             killall ptunnel
             srm -rfz $geo/ > /dev/null 2>&1
             exit 0
