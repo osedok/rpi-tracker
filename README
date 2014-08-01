@@ -124,8 +124,8 @@
     you want to test it over an wired interface (eth0) you will have to 
     edit the following from rpi-tracker.sh.
 
-    FROM: ptunnel -p $PTIP -lp 8080 -da $IP -dp $PORT -c $wlan -x $PASS &
-    TO: ptunnel -p $PTIP -lp 8080 -da $IP -dp $PORT -c eth(your number) -x $PASS &   
+    FROM: ptunnel -p $PTIP -lp 443 -da $IP -dp $PORT -c $wlan -x $PASS &
+    TO: ptunnel -p $PTIP -lp 443 -da $IP -dp $PORT -c eth(your number) -x $PASS &   
     
     
     As stated before this uses wpa_supplicant for managing wireless 
