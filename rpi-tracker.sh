@@ -1,7 +1,4 @@
 #!/bin/bash
-#-------------------------------------------------------------------------------------------------------------
-# The cron job executes the following after the first two files are detected.
-# if you wish you may seperate this into another stand alone script after the necessary configurations are made.
 
 tstamp() {
   date +"%F"_"%H":"%M"
