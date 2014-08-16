@@ -35,6 +35,12 @@ if [[ ! -e $cfgpath/tracking.conf ]]; then
 fi
 source $cfgpath/tracking.conf
 
+if [[ $PINGTN != 'on' && $PINGTN != 'off' ]]; then
+       unset PINGTN
+       PINGTN=off
+       printf "\nYou probably changed the ping tunnel values incorrectly, ignoring values until corrected.\n\n" >> $log
+fi
+
 if [ ! -e "$geo" ]; then
      mkdir -p $geo/{gps,net-info,ap-info} > /dev/null 2>&1
 fi
