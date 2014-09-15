@@ -44,19 +44,17 @@ make_runlog() {
 }
 
 get_permission() {
-   while [[ $ansr != "n" || $ansr != "N" || $ansr != "y" || $ansr != "Y" ]]; do
-         read ansr
-            if [[ $ansr == "n" || $ansr == "N" ]]; then
-                   printf "\n\nexiting....\n"
-                   exit
-              elif [[ $ansr == "y" || $ansr == "Y" ]]; then
-                   printf "\ncontinuing....\n\n"
-                   break
-              else
-                   printf "\n\n not a valid entry, please try again."
-                   printf "\n(y/n)?\n"
-            fi
-   done
+while true; do
+       printf "\n"
+       read ansr
+       case $ansr in
+              [Yy] ) break;;
+              [Nn] ) printf "\nexiting...\n"; exit;;
+                 * ) printf "\nNot a valid entry \nPlease answer y or n";;
+       esac
+done
+printf "Continuing...\n"
+
 }
 
 # you may have to tweak this if your wireless device doesn't start with wlan, for example ath0
@@ -95,8 +93,19 @@ if [[ $PINGTN != 'on' && $PINGTN != 'off' ]]; then
        printf "\nYou probably changed the ping tunnel values incorrectly, ignoring values until corrected.\n\n"
 fi
 
+# warning that changes from previous install will be replaced
+if [ -e "/var/log/first-run" ];then
+printf "\n\nYou have installed this before, to proceed the configuration files will be replaced."
+printf "\nDo you wish to continue? (y/n)\n"
+get_permission
+rm -f /var/log/first-run
+rm -f /etc/cron.d/geo-tracker
+rm -rf /root/geo-data
+
+fi
+
 # Performing check if already configured previously if not installing packages.
-if [ ! -f "/var/log/first-run" ]; then
+if [ ! -e "/var/log/first-run" ]; then
 
    if [ $USR == 'foo' ]; then
          printf "\nYou have not changed the server user name, check the ip address, port number as well.\n\n"
@@ -128,7 +137,7 @@ if [ ! -f "/var/log/first-run" ]; then
 fi
 
 # Setting up cron job which performs periodic updates to server
-if [ ! -f "/etc/cron.d/geo-tracker" ]; then
+if [ ! -e "/etc/cron.d/geo-tracker" ]; then
 
    chk_wlan
    chk_wpasup
@@ -226,13 +235,6 @@ if [ ! -f "/etc/cron.d/geo-tracker" ]; then
         exit 0
    fi
 fi
-
-printf "\n\nYou have installed this before, to proceed the configuration files will be replaced."
-printf "\nDo you wish to continue? (y/n)\n"
-get_permission
-rm -f /var/log/first-run
-rm -f /etc/cron.d/geo-tracker
-rm -rf /root/geo-data
 
 done
 exit
