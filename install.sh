@@ -32,8 +32,8 @@ chk_tubes() {
 
 get_aptpkg() {
    if ! apt-get -y install $1; then
-       printf "\n\nAPT failed to install "$1", are your repos working?\nexiting...\n\n"
-       exit
+       printf "\n\nAPT failed to install "$1", are your repos working?\n"
+       exit 1
    fi
 }
 
@@ -87,9 +87,8 @@ source $spath/tracking.conf
 while true; do
 chk_usr root
 if [[ $PINGTN != 'on' && $PINGTN != 'off' ]]; then
-      # unset PINGTN
-      # PINGTN=off
-      echo ""$PINGTN""
+
+       printf "\n$PINGTN"
        printf "\nYou probably changed the ping tunnel values incorrectly, ignoring values until corrected.\n\n"
 fi
 
@@ -123,14 +122,11 @@ if [ ! -e "/var/log/first-run" ]; then
          printf "\nif you use this device as a server or for any other services stop the script now!"
          printf "\n\nContinue? (y/n) \n"
          get_permission
-         while true; do
-             if ! ( get_aptpkg gpsd-clients && get_aptpkg ptunnel && get_aptpkg secure-delete ); then
-                   printf "\ntrying again...\n"
-                   apt-get update
-              else
-                   break
-             fi
-         done
+         apt-get update
+         if ! ( get_aptpkg gpsd-clients && get_aptpkg ptunnel && get_aptpkg secure-delete ); then
+             printf "\nApt failed again. Are your mirrors blocked?\nexiting..."
+             exit 1
+         fi
          make_runlog /var/log/first-run
    fi
 
