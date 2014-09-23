@@ -98,7 +98,7 @@
     to localhost in the know_hosts file before hashing it or log in manually 
     once to the server through the tunnel to update this file or just turn 
     off the fingerprint checks by turning off stricthostkeychecking option 
-    in the global /etc/ssh/sshd_config (not recommended).
+    in the global /etc/ssh/ssh_config (not recommended).
     
     
     For specifics on using ptunnel use the --help option for details. 
