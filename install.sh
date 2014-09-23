@@ -144,7 +144,7 @@ if [ ! -e "/var/log/first-run" ]; then
          case $KCHK in
               [yY][eE][sS] ) printf "\nYou will have to import the ssh key fingerprint of the server manually\n";;
                   [nN][Oo] ) printf "\nWarning, the ssh key fingerprint will be imported automatically\n" :
-                             printf "Host *\n    StrictHostKeyChecking no" > ~/.ssh/config
+                             printf "Host *\n    StrictHostKeyChecking no\n" > ~/.ssh/config
                              ;;
                         *  ) printf "\nThe option for the host checking ssh keys is not set properly." :
                              printf "\ninstall will not continue until corrected."
