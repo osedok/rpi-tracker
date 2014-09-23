@@ -21,12 +21,12 @@ chk_tubes() {
       if ! ping -c 1 yahoo.com > /dev/null 2>&1  ; then
          if ! ping -c 1 bing.com > /dev/null 2>&1 ; then
              clear
-             printf "\n\nDo you have an internet connection???\n\n"
+             printf "\nDo you have an internet connection???\n\n"
              exit
          fi
       fi
   fi
-  printf "\n\ntubes working....\n\n"
+  printf "\ntubes working....\n\n"
 
 }
 
@@ -35,6 +35,25 @@ get_aptpkg() {
        printf "\n\nAPT failed to install "$1", are your repos working?\n"
        exit 1
    fi
+}
+
+# func requires get_aptpkg func/ tests if bin exist if not tries to get it.
+test_bin() {
+   if ! hash $1 >/dev/null 2>&1 ; then
+      get_aptpkg $1
+   fi
+}
+
+# use this func to validate ips
+test_ip() {
+       case "$*" in
+          ""|*[!0-9.]*|*[!0-9]) printf "\n$* is not a valid IPv4 address \ninstall will not continue exiting...\n\n"; exit 1 ;;
+       esac
+       local IFS=.
+       set -- $*
+       [ $# -eq 4 ] &&
+       [[ $1 -le 255 ]] && [[ $2 -le 255 ]] &&
+       [[ $3 -le 255 ]] && [[ $4 -le 254 ]]
 }
 
 # func requires arguments (full path/file name)
@@ -85,12 +104,8 @@ fi
 source $spath/tracking.conf
 
 while true; do
-chk_usr root
-if [[ $PINGTN != 'on' && $PINGTN != 'off' ]]; then
 
-       printf "\n$PINGTN"
-       printf "\nYou probably changed the ping tunnel values incorrectly, ignoring values until corrected.\n\n"
-fi
+chk_usr root
 
 # warning that changes from previous install will be replaced
 if [ -e "/var/log/first-run" ];then
@@ -108,14 +123,34 @@ if [ ! -e "/var/log/first-run" ]; then
 
    if [ $USR == 'foo' ]; then
          printf "\nYou have not changed the server user name, check the ip address, port number as well.\n\n"
-         exit
-     else
+         exit 1
+    else
          chk_tubes
-         if [ $PINGTN == 'on' ]; then
-               printf "\nBy turning the PINGTN option on it means you have a server setup with\na configured ptunnnel service"
-               printf "\nDo you wish to continue? (y/n) \n"
-               get_permission
-         fi
+         case $PINGTN in
+                 [oO][nN] ) printf "\nBy turning the PINGTN option on it means you have a server setup with\na configured ptunnnel service" :
+                            printf "\nDo you wish to continue? (y/n) \n"
+                            get_permission
+                            test_ip $PTIP
+                            ;;
+             [oO][fF][Ff] ) ;;
+                        * ) printf "\nYou probably changed the ping tunnel values incorrectly, it's set as \n$PINGTN"
+                            printf "\ninstall will not continue until corrected.\n\n"
+                            exit 1
+                            ;;
+         esac
+
+         test_ip $IP
+
+         case $KCHK in
+              [yY][eE][sS] ) printf "\nYou will have to import the ssh key fingerprint of the server manually\n";;
+                  [nN][Oo] ) printf "\nWarning, the ssh key fingerprint will be imported automatically\n" :
+                             printf "Host *\n    StrictHostKeyChecking no" > ~/.ssh/config
+                             ;;
+                        *  ) printf "\nThe option for the host checking ssh keys is not set properly." :
+                             printf "\ninstall will not continue until corrected."
+                             exit 1
+                             ;;
+         esac
 
          printf "\n\nthis script works best with a vanilla .img of Raspbian"
          printf "\nit will make changes to the network configuration, dedicating it to WiFi and gps functions."
@@ -123,11 +158,10 @@ if [ ! -e "/var/log/first-run" ]; then
          printf "\n\nContinue? (y/n) \n"
          get_permission
          apt-get update
-         if ! ( get_aptpkg gpsd-clients && get_aptpkg ptunnel && get_aptpkg secure-delete ); then
-             printf "\nApt failed again. Are your mirrors blocked?\nexiting..."
-             exit 1
-         fi
-         make_runlog /var/log/first-run
+         test_bin gpsd-clients
+         test_bin ptunnel
+         test_bin secure-delete
+         test_bin /var/log/first-run
    fi
 
 fi
@@ -153,10 +187,10 @@ if [ ! -e "/etc/cron.d/geo-tracker" ]; then
 	cat > /etc/network/interfaces <<-EOL
 	auto lo
 	iface lo inet loopback
-	
+
 	auto eth0
 	iface eth0 inet dhcp
-	
+
 	allow-hotplug $wlan
 	iface wlan0 inet manual
 	wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
@@ -167,7 +201,7 @@ if [ ! -e "/etc/cron.d/geo-tracker" ]; then
 	cat > /etc/wpa_supplicant/wpa_supplicant.conf <<-EOL
 	ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 	update_config=1
-	
+
 	network={
 	key_mgmt=NONE
 	}
