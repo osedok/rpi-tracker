@@ -46,14 +46,15 @@ test_bin() {
 
 # use this func to validate ips
 test_ip() {
-       case "$*" in
-          ""|*[!0-9.]*|*[!0-9]) printf "\n$* is not a valid IPv4 address \ninstall will not continue exiting...\n\n"; exit 1 ;;
-       esac
-       local IFS=.
+  if [[ ! $1 =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+          printf "\n$* is not a valid IPv4 address\n"; exit 1
+    else
+       local IFS='.'
        set -- $*
-       [ $# -eq 4 ] &&
+       [[ $# -eq 4 ]] &&
        [[ $1 -le 255 ]] && [[ $2 -le 255 ]] &&
        [[ $3 -le 255 ]] && [[ $4 -le 254 ]]
+  fi
 }
 
 # func requires arguments (full path/file name)
