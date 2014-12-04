@@ -35,7 +35,7 @@ will not function with default variables.
 GPSDEVICE - for the GPIO pins on the RPi is /dev/ttyAMA0
 for USB devices it *may* be /dev/ttyUSB0
 
-PINGTN - (on || off)  This activates the option to us a ping tunnel
+PINGTN - (on || off)  This activates the option to use a ping tunnel
 
 PTIP - ptunnel proxy IP, if the PINGTN option is on this is required 
 
