@@ -41,7 +41,9 @@ PTIP - ptunnel proxy IP, if the PINGTN option is on this is required
 
 PASS - password for the ptunnel password
 
-USR - username to be used with ssh 
+USR - username to be used with ssh
+
+KCHK - (yes || no ) if yes you will manually have to import the ssh key fingerprint. If no importation is automatic.
 
 PORT - the configured port for ssh, the default is 22
 
