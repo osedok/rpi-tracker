@@ -148,7 +148,7 @@ if [ ! -e "/var/log/first-run" ]; then
                              printf "Host *\n    StrictHostKeyChecking no\n" > ~/.ssh/config
                              ;;
                         *  ) printf "\nThe option for the host checking ssh keys is not set properly." :
-                             printf "\ninstall will not continue until corrected."
+                             printf "\ninstall will not continue until corrected.\n"
                              exit 1
                              ;;
          esac
@@ -162,7 +162,7 @@ if [ ! -e "/var/log/first-run" ]; then
          test_bin gpsd-clients
          test_bin ptunnel
          test_bin secure-delete
-         test_bin /var/log/first-run
+         make_runlog /var/log/first-run
    fi
 
 fi
